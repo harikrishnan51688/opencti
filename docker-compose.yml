@@ -297,6 +297,128 @@ services:
       opencti:
         condition: service_healthy          
 
+
+  connector-virustotal-livehunt-notifications:
+    image: opencti/connector-virustotal-livehunt-notifications:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=2626cf29-267b-47e0-b44b-6b7d7d0db4ea
+      - CONNECTOR_NAME=VirusTotal Livehunt Notifications
+      - CONNECTOR_SCOPE=StixFile,Indicator,Incident
+      - CONNECTOR_LOG_LEVEL=error
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_API_KEY=${VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_API_KEY}
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_INTERVAL_SEC=300
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_CREATE_ALERT=True
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_CREATE_FILE=True
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_CREATE_YARA_RULE=True
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_MAX_AGE_DAYS=3
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
+
+  connector-abuse-ssl:
+    image: opencti/connector-abuse-ssl:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=68ffc64d-e623-4ec1-94a0-a03333023bc7
+      - CONNECTOR_NAME=Abuse.ch SSL Blacklist
+      - CONNECTOR_SCOPE=abusessl
+      - CONNECTOR_LOG_LEVEL=error
+      - ABUSESSL_URL=https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
+      - ABUSESSL_INTERVAL=360
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy  
+
+  connector-cisa-known-exploited-vulnerabilities:
+    image: opencti/connector-cisa-known-exploited-vulnerabilities:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=e7b1bda3-1113-4fd0-8b26-1bbee8d4f03b
+      - CONNECTOR_NAME=CISA KEV
+      - CONNECTOR_SCOPE=cisa
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_DURATION_PERIOD=P1D
+      - CISA_CATALOG_URL=https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+      - CISA_CREATE_INFRASTRUCTURES=true
+      - CISA_KEV_FLAG_ONLY=false
+      - CISA_TLP=TLP:CLEAR
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy  
+
+  connector-alienvault:
+    image: opencti/connector-alienvault:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=d5d74ef5-3c46-47e1-8a94-c9bca9e9b600
+      - CONNECTOR_NAME=AlienVault
+      - CONNECTOR_SCOPE=alienvault
+      - CONNECTOR_LOG_LEVEL=error
+      - CONNECTOR_DURATION_PERIOD=PT30M
+      - ALIENVAULT_BASE_URL=https://otx.alienvault.com
+      - ALIENVAULT_API_KEY=${ALIENVAULT_API_KEY}
+      - ALIENVAULT_TLP=White
+      - ALIENVAULT_CREATE_OBSERVABLES=true
+      - ALIENVAULT_CREATE_INDICATORS=true
+      - ALIENVAULT_PULSE_START_TIMESTAMP=2020-05-01T00:00:00
+      - ALIENVAULT_REPORT_TYPE=threat-report
+      - ALIENVAULT_REPORT_STATUS=New
+      - ALIENVAULT_GUESS_MALWARE=false
+      - ALIENVAULT_GUESS_CVE=false
+      - ALIENVAULT_EXCLUDED_PULSE_INDICATOR_TYPES=FileHash-MD5,FileHash-SHA1
+      - ALIENVAULT_ENABLE_RELATIONSHIPS=true
+      - ALIENVAULT_ENABLE_ATTACK_PATTERNS_INDICATES=true
+      - ALIENVAULT_DEFAULT_X_OPENCTI_SCORE=50
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy  
+
+  connector-malwarebazaar:
+    image: opencti/connector-malwarebazaar:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=4f9444d3-17bc-44e3-a007-537ab0827ae0
+      - CONNECTOR_NAME=MalwareBazaar
+      - CONNECTOR_SCOPE=StixFile
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_DURATION_PERIOD=PT50M
+      - MALWAREBAZAAR_API_BASE_URL=https://mb-api.abuse.ch/api/v1/
+      - MALWAREBAZAAR_API_KEY=${MALWAREBAZAAR_API_KEY}
+      - MALWAREBAZAAR_TLP_LEVEL=clear
+      - MALWAREBAZAAR_X_OPENCTI_SCORE=100
+      - MALWAREBAZAAR_INCLUDE_TAGS=exe,dll,docm,docx,doc,xls,xlsx,xlsm,js
+      - MALWAREBAZAAR_INCLUDE_REPORTERS=
+      - MALWAREBAZAAR_LABELS=malware-bazaar
+    restart: always
+
+  connector-threatfox:
+    image: opencti/connector-threatfox:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=1f63ab34-7126-4bb7-81a8-969b0e827509
+      - CONNECTOR_NAME=ThreatFox
+      - CONNECTOR_SCOPE=threatfox
+      - CONNECTOR_LOG_LEVEL=error
+      - THREATFOX_CSV_URL=https://threatfox.abuse.ch/export/csv/recent/
+      - THREATFOX_INTERVAL=1 # In days
+      - THREATFOX_IMPORT_OFFLINE=true
+      - THREATFOX_CREATE_INDICATORS=true
+      - THREATFOX_DEFAULT_X_OPENCTI_SCORE=50
+      - THREATFOX_IOC_TO_IMPORT=all_types
+    restart: always
+
+        
   ###########################
   # OPENCTI DEFAULT DATA    #
   ###########################
