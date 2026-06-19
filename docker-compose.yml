@@ -297,27 +297,6 @@ services:
       opencti:
         condition: service_healthy          
 
-
-  connector-virustotal-livehunt-notifications:
-    image: opencti/connector-virustotal-livehunt-notifications:latest
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=2626cf29-267b-47e0-b44b-6b7d7d0db4ea
-      - CONNECTOR_NAME=VirusTotal Livehunt Notifications
-      - CONNECTOR_SCOPE=StixFile,Indicator,Incident
-      - CONNECTOR_LOG_LEVEL=error
-      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_API_KEY=${VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_API_KEY}
-      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_INTERVAL_SEC=300
-      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_CREATE_ALERT=True
-      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_CREATE_FILE=True
-      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_CREATE_YARA_RULE=True
-      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_MAX_AGE_DAYS=3
-    restart: always
-    depends_on:
-      opencti:
-        condition: service_healthy
-
   connector-abuse-ssl:
     image: opencti/connector-abuse-ssl:latest
     environment:
