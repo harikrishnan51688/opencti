@@ -17,6 +17,8 @@ services:
       timeout: 5s
       retries: 3
     restart: always
+    mem_limit: 64m
+    cpus: 0.1
   redis:
     image: redis:8.6.3
     restart: always
@@ -27,6 +29,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    mem_limit: 512m
+    cpus: 0.5
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.19.15
     volumes:
@@ -41,6 +45,9 @@ services:
       - thread_pool.search.queue_size=5000
       - logger.org.elasticsearch.discovery="ERROR"
       - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
+      # Heap is already locked via ulimits.memlock below; tell ES to actually use it
+      # so the heap doesn't get swapped out under memory pressure.
+      - bootstrap.memory_lock=true
     restart: always
     ulimits:
       memlock:
@@ -54,6 +61,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 50
+    mem_limit: 3g
+    cpus: 2.0
   minio:
     image: minio/minio:latest
     volumes:
@@ -70,6 +79,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    mem_limit: 512m
+    cpus: 0.5
   rabbitmq:
     image: rabbitmq:4.3-management
     environment:
@@ -87,6 +98,8 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    mem_limit: 768m
+    cpus: 0.5
 
   ###########################
   # COMMON                  #
@@ -115,6 +128,8 @@ services:
       rabbitmq:
         condition: service_healthy
     restart: always
+    mem_limit: 256m
+    cpus: 0.25
 
   ###########################
   # OPENCTI                 #
@@ -123,7 +138,7 @@ services:
   opencti:
     image: opencti/platform:latest
     environment:
-      - NODE_OPTIONS=--max-old-space-size=8096
+      - NODE_OPTIONS=--max-old-space-size=${OPENCTI_NODE_MEMORY}
       - APP__PORT=8080
       - APP__BASE_URL=${OPENCTI_EXTERNAL_SCHEME}://${OPENCTI_HOST}:${OPENCTI_PORT}
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
@@ -166,6 +181,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+    mem_limit: 3g
+    cpus: 2.0
   worker:
     image: opencti/worker:latest
     environment:
@@ -176,8 +193,10 @@ services:
         condition: service_healthy
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
     restart: always
+    mem_limit: 512m
+    cpus: 0.5
 
   ###########################
   # OPENCTI CONNECTORS      #
@@ -196,6 +215,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.25
   connector-export-file-csv:
     image: opencti/connector-export-file-csv:latest
     environment:
@@ -209,6 +230,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.25
   connector-export-file-txt:
     image: opencti/connector-export-file-txt:latest
     environment:
@@ -222,6 +245,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.25
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:latest
     environment:
@@ -237,6 +262,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.25
   connector-import-document:
     image: opencti/connector-import-document:latest
     environment:
@@ -254,6 +281,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 512m
+    cpus: 0.5
   connector-import-file-yara:
     image: opencti/connector-import-file-yara:latest
     environment:
@@ -269,6 +298,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.25
   connector-analysis:
     image: opencti/connector-import-document:latest
     environment:
@@ -285,6 +316,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
+    mem_limit: 512m
+    cpus: 0.5
   connector-import-external-reference:
     image: opencti/connector-import-external-reference:latest
     environment:
@@ -295,7 +328,9 @@ services:
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy          
+        condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.25
 
   connector-abuse-ssl:
     image: opencti/connector-abuse-ssl:latest
@@ -312,6 +347,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy  
+    mem_limit: 256m
+    cpus: 0.25
 
   connector-cisa-known-exploited-vulnerabilities:
     image: opencti/connector-cisa-known-exploited-vulnerabilities:latest
@@ -331,6 +368,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy  
+    mem_limit: 256m
+    cpus: 0.25
 
   connector-alienvault:
     image: opencti/connector-alienvault:latest
@@ -360,6 +399,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy  
+    mem_limit: 256m
+    cpus: 0.25
 
   connector-malwarebazaar:
     image: opencti/connector-malwarebazaar:latest
@@ -379,6 +420,8 @@ services:
       - MALWAREBAZAAR_INCLUDE_REPORTERS=
       - MALWAREBAZAAR_LABELS=malware-bazaar
     restart: always
+    mem_limit: 256m
+    cpus: 0.25
 
   connector-threatfox:
     image: opencti/connector-threatfox:latest
@@ -396,6 +439,8 @@ services:
       - THREATFOX_DEFAULT_X_OPENCTI_SCORE=50
       - THREATFOX_IOC_TO_IMPORT=all_types
     restart: always
+    mem_limit: 256m
+    cpus: 0.25
 
         
   ###########################
@@ -416,6 +461,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy      
+    mem_limit: 256m
+    cpus: 0.25
   connector-mitre:
     image: opencti/connector-mitre:latest
     environment:
@@ -428,6 +475,8 @@ services:
     depends_on:
       opencti:
         condition: service_healthy      
+    mem_limit: 256m
+    cpus: 0.25
 
 volumes:
   esdata:
