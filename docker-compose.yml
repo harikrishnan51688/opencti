@@ -60,8 +60,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 50
-    mem_limit: 3g
-    cpus: 2.0
+
   minio:
     image: minio/minio:latest
     volumes:
