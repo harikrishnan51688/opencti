@@ -482,3 +482,23 @@ volumes:
   redisdata:
   amqpdata:
   rsakeys:
+
+
+### If restore from backup ###
+
+# volumes:
+#   esdata:
+#     external: true
+#     name: opencti_esdata
+#   s3data:
+#     external: true
+#     name: opencti_s3data
+#   redisdata:
+#     external: true
+#     name: opencti_redisdata
+#   amqpdata:
+#     external: true
+#     name: opencti_amqpdata
+#   rsakeys:
+#     external: true
+#     name: opencti_rsakeys
